@@ -1,4 +1,4 @@
-from datasets import load_dataset
+from datasets import load_from_disk
 import transformers
 
 from torch.utils.data import DataLoader
@@ -17,7 +17,7 @@ def build_dna_dataloader(
             'argument when creating your MDS dataset with convert_dataset.py')
 
     assert cfg.dataset.local is not None, "No local dataset provided"
-    dataset = load_dataset(cfg.dataset.local)
+    dataset = load_from_disk(cfg.dataset.local)
     dataset = dataset[cfg.dataset.split]
 
     print("===ds===")
