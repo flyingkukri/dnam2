@@ -11,6 +11,7 @@ sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 import src.hf_bert as hf_bert_module
 import src.create_bert as bert_module
 import src.text_data as text_data_module
+import src.dna_data as dna_data_module
 from src.optim.create_param_groups import create_param_groups
 from composer import Trainer, algorithms
 from composer.callbacks import (HealthChecker, LRMonitor, MemoryMonitor,
@@ -143,6 +144,9 @@ def build_dataloader(cfg, tokenizer, device_batch_size):
     if cfg.name == 'text':
         return text_data_module.build_text_dataloader(cfg, tokenizer,
                                                       device_batch_size)
+    elif cfg.name == 'dna':
+        return dna_data_module.build_dna_dataloader(cfg, tokenizer,
+                                                    device_batch_size)
     else:
         raise ValueError(f'Not sure how to build dataloader with config: {cfg}')
 
