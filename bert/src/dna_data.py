@@ -47,6 +47,7 @@ def build_dna_dataloader(
 
     assert cfg.dataset.local is not None, "No local dataset provided"
     dataset = load_dataset(cfg.dataset.local)
+    dataset = dataset[cfg.dataset.split]
 
     return DataLoader(
         dataset,
