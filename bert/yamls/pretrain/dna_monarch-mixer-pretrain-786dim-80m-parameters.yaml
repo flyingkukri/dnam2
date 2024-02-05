@@ -2,8 +2,8 @@
 data_local: ./300/
 data_remote: 
 
-max_seq_len: 128
-tokenizer_name: bert-base-uncased
+max_seq_len: 512
+tokenizer_name: zhihan1996/DNA_bert_6 
 mlm_probability: 0.30 
 
 # Run Name
@@ -70,6 +70,8 @@ scheduler:
   t_warmup: 0.06dur # Warmup to the full LR for 6% of the training duration
   alpha_f: 0.02 # Linearly decay to 0.02x the full LR by the end of the training duration
 
+precision: fp32
+
 optimizer:
   name: decoupled_adamw
   lr: 8.0e-4 # Peak learning rate
@@ -94,7 +96,6 @@ seed: 17
 device_eval_batch_size: 128
 device_train_microbatch_size: 128
 # device_train_microbatch_size: auto
-precision: amp_bf16 
 
 # Logging
 progress_bar: false
