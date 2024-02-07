@@ -3,7 +3,7 @@ data_local: ./300/
 data_remote: 
 
 max_seq_len: 512
-tokenizer_name: zhihan1996/DNA_bert_6 
+tokenizer_name: gagneurlab/SpeciesLM
 mlm_probability: 0.30 
 
 # Run Name
@@ -12,7 +12,7 @@ run_name: monarch-mixer-pretrain-786dim-80m-parameters
 # Model
 model:
   name: bert
-  pretrained_model_name: ${tokenizer_name}
+  pretrained_model_name: bert-base-uncased
   tokenizer_name: ${tokenizer_name}
   model_config:
     num_attention_heads: 12 
