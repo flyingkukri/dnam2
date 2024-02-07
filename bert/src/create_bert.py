@@ -101,7 +101,9 @@ def create_bert_mlm(pretrained_model_name: str = 'bert-base-uncased',
         model.gradient_checkpointing_enable()  # type: ignore
 
     # setup the tokenizer
-    if tokenizer_name:
+    if tokenizer_name == "gagneurlab/SpeciesLM":
+        tokenizer = transformers.AutoTokenizer.from_pretrained("gagneurlab/SpeciesLM", revision="downstream_species_lm")
+    elif tokenizer_name:
         tokenizer = transformers.AutoTokenizer.from_pretrained(tokenizer_name)
     else:
         tokenizer = transformers.AutoTokenizer.from_pretrained(
