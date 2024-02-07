@@ -25,10 +25,10 @@ def build_dna_dataloader(
 
     dataset = dataset.remove_columns(["species_name", "__index_level_0__"])
 
-    AutoTokenizer.from_pretrained(cfg.dataset.tokenizer_name, trust_remote_code=True)
+    tokenizer = transformers.AutoTokenizer.from_pretrained("gagneurlab/SpeciesLM", revision="downstream_species_lm")
     mlm_probability = cfg.dataset.get('mlm_probability', None)
     collate_fn = DataCollatorForLanguageModeling(
-        tokenizer=AutoTokenizer.from_pretrained(cfg.dataset.tokenizer_name, trust_remote_code=True),
+        tokenizer=tokenizer,
         mlm=mlm_probability is not None,
         mlm_probability=mlm_probability)
 
