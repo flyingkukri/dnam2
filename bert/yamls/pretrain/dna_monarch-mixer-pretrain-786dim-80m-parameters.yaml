@@ -4,7 +4,7 @@ data_remote:
 
 max_seq_len: 512
 tokenizer_name: gagneurlab/SpeciesLM
-mlm_probability: 0.30 
+mlm_probability: 0.02
 
 # Run Name
 run_name: monarch-mixer-pretrain-786dim-80m-parameters
@@ -87,9 +87,9 @@ algorithms:
     clipping_threshold: 1.0
   }
 
-max_duration: 286720000sp # Subsample the training data for ~275M samples
+max_duration: 1000000sp # Subsample the training data for ~275M samples
 eval_interval: 2000ba
-global_train_batch_size: 4096
+global_train_batch_size: 32
 
 # System
 seed: 17
