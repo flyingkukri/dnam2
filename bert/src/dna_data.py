@@ -31,7 +31,8 @@ def build_dna_dataloader(
     collate_fn = DataCollatorForLanguageModelingSpan(
         tokenizer=tokenizer,
         mlm=mlm_probability is not None,
-        mlm_probability=mlm_probability)
+        mlm_probability=mlm_probability,
+        span_length=6)
     print("==Using the correct data collator")
 
     eos_token_id = cfg.dataset.get('eos_token_id')
