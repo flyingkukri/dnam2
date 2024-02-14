@@ -2,6 +2,7 @@ from datasets import load_from_disk, load_dataset
 import transformers
 from transformers import AutoTokenizer, DataCollatorForLanguageModeling, PreTrainedTokenizer
 from text_data import ConcatenatedSequenceCollatorWrapper
+from collate import DataCollatorForLanguageModelingSpan
 
 from torch.utils.data import DataLoader
 from omegaconf import DictConfig
@@ -27,14 +28,16 @@ def build_dna_dataloader(
 
     tokenizer = transformers.AutoTokenizer.from_pretrained("gagneurlab/SpeciesLM", revision="downstream_species_lm")
     mlm_probability = cfg.dataset.get('mlm_probability', None)
-    collate_fn = DataCollatorForLanguageModeling(
+    collate_fn = DataCollatorForLanguageModelingSpan(
         tokenizer=tokenizer,
         mlm=mlm_probability is not None,
         mlm_probability=mlm_probability)
+    print("==Using the correct data collator")
 
     eos_token_id = cfg.dataset.get('eos_token_id')
     bos_token_id = cfg.dataset.get('bos_token_id')
     if (eos_token_id is not None) or (bos_token_id is not None):
+        raise Exception("wrong collator")
         # Note: Will raise an error if both are non-None
         collate_fn = ConcatenatedSequenceCollatorWrapper(
             base_collator=collate_fn,
