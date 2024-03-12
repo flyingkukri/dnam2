@@ -1,0 +1,3 @@
+srun: Job step aborted: Waiting up to 32 seconds for job step to finish.
+slurmstepd: error: *** JOB 13570880 ON ouga11 CANCELLED AT 2024-03-10T01:03:02 DUE TO PREEMPTION ***
+slurmstepd: error: *** STEP 13570880.18 ON ouga11 CANCELLED AT 2024-03-10T01:03:02 DUE TO PREEMPTION ***
