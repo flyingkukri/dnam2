@@ -1,5 +1,5 @@
 
-data_local: ./300/
+data_local: ../batch/
 data_remote: 
 
 max_seq_len: 512
@@ -7,7 +7,7 @@ tokenizer_name: gagneurlab/SpeciesLM
 mlm_probability: 0.02
 
 # Run Name
-run_name: monarch-mixer-pretrain-786dim-80m-parameters
+run_name: batch_dna_monarch-mixer-pretrain-786dim-80m-parameters2
 
 # Model
 model:
@@ -74,10 +74,10 @@ precision: fp32
 
 optimizer:
   name: decoupled_adamw
-  lr: 4.0e-4 # Peak learning rate
+  lr: 0.00005 # Peak learning rate
   betas:
-  - 0.95
-  - 0.99
+  - 0.99921875
+  - 0.99984375
   eps: 1.0e-06
   weight_decay: 1.0e-5 # Amount of weight decay regularization
 
@@ -87,9 +87,9 @@ algorithms:
     clipping_threshold: 1.0
   }
 
-max_duration: 200000ba # Subsample the training data for ~275M samples
+max_duration: 20000ba # Subsample the training data for ~275M samples
 eval_interval: 2000ba
-global_train_batch_size: 1024
+global_train_batch_size: 16
 
 # System
 seed: 17
@@ -108,10 +108,10 @@ callbacks:
   lr_monitor: {}
 
 # (Optional) W&B logging
-# loggers:
-#   wandb:
-#     project:     # Fill this in
-#     entity:      # Fill this in
+loggers:
+ wandb:
+   project: singlesamplednam2    # Fill this in
+   entity: luluh     # Fill this in
 
 # Checkpoint
 save_interval: 7000ba

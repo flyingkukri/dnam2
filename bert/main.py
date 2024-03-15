@@ -260,7 +260,7 @@ def main(cfg: DictConfig,
         load_path=cfg.get('load_path', None),
         load_weights_only=cfg.get('load_weights_only', False),
         python_log_level=cfg.get('python_log_level', None),
-        autoresume=True,
+        autoresume=False,
     )
 
     print('Logging config...')
@@ -271,7 +271,7 @@ def main(cfg: DictConfig,
         trainer.fit()
 
     if return_trainer:
-        return trainer
+        return trainer, model
 
 
 if __name__ == '__main__':

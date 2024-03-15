@@ -1,13 +1,13 @@
 
-data_local: ./300/
+data_local: ../my-copy-c4-tiny1024/
 data_remote: 
 
-max_seq_len: 512
-tokenizer_name: gagneurlab/SpeciesLM
-mlm_probability: 0.02
+max_seq_len: 128
+tokenizer_name: bert-base-uncased
+mlm_probability: 0.15
 
 # Run Name
-run_name: monarch-mixer-pretrain-786dim-80m-parameters
+run_name: c4batch_monarch-mixer-pretrain-786dim-80m-parameters2
 
 # Model
 model:
@@ -39,7 +39,7 @@ model:
     
 # Dataloaders
 train_loader:
-  name: dna
+  name: text
   dataset:
     local: ${data_local}
     remote: 
@@ -52,15 +52,15 @@ train_loader:
   num_workers: 8
 
 eval_loader:
-  name: dna
+  name: text
   dataset:
     local: ${data_local}
     remote: 
-    split: test
+    split: val
     tokenizer_name: ${tokenizer_name}
     max_seq_len: ${max_seq_len}
     shuffle: false
-    mlm_probability: 0.15 
+    mlm_probability: 0.15
   drop_last: false
   num_workers: 8
 
@@ -74,10 +74,10 @@ precision: fp32
 
 optimizer:
   name: decoupled_adamw
-  lr: 4.0e-4 # Peak learning rate
+  lr: 0.00005 # Peak learning rate
   betas:
-  - 0.95
-  - 0.99
+  - 0.99921875
+  - 0.99984375
   eps: 1.0e-06
   weight_decay: 1.0e-5 # Amount of weight decay regularization
 
@@ -87,7 +87,7 @@ algorithms:
     clipping_threshold: 1.0
   }
 
-max_duration: 200000ba # Subsample the training data for ~275M samples
+max_duration: 20000ba # Subsample the training data for ~275M samples
 eval_interval: 2000ba
 global_train_batch_size: 1024
 
@@ -108,10 +108,10 @@ callbacks:
   lr_monitor: {}
 
 # (Optional) W&B logging
-# loggers:
-#   wandb:
-#     project:     # Fill this in
-#     entity:      # Fill this in
+loggers:
+ wandb:
+   project: singlesamplednam2    # Fill this in
+   entity: luluh     # Fill this in
 
 # Checkpoint
 save_interval: 7000ba
