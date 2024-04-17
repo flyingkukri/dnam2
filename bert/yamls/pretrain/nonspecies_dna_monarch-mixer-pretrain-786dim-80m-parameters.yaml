@@ -4,10 +4,10 @@ data_remote:
 
 max_seq_len: 512
 tokenizer_name: gagneurlab/SpeciesLM
-mlm_probability: 0.033
+mlm_probability: 0.025
 
 # Run Name
-run_name: lrcorrect__monarch-mixer-pretrain-786dim-80m-parameters
+run_name: nonspecies_monarch-mixer-pretrain-786dim-80m-parameters
 
 # Model
 model:
@@ -60,7 +60,7 @@ eval_loader:
     tokenizer_name: ${tokenizer_name}
     max_seq_len: ${max_seq_len}
     shuffle: false
-    mlm_probability: 0.033
+    mlm_probability: 0.025
   drop_last: false
   num_workers: 8
 
@@ -70,7 +70,7 @@ scheduler:
   t_warmup: 0.05dur # Warmup to the full LR for 6% of the training duration
   alpha_f: 0.00 # Linearly decay to 0.02x the full LR by the end of the training duration
 
-precision: fp32
+precision: amp_bf16
 
 optimizer:
   name: decoupled_adamw
