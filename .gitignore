@@ -164,3 +164,7 @@ cython_debug/
 
 **/300/
 **/300nonsplit
+
+# (slurm) output
+**.out
+**/**.out

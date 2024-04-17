@@ -6,6 +6,7 @@ from collate import DataCollatorForLanguageModelingSpan
 
 from torch.utils.data import DataLoader
 from omegaconf import DictConfig
+from composer.utils import dist
 
 
 def build_dna_dataloader(
@@ -22,6 +23,7 @@ def build_dna_dataloader(
     #return test_set(device_batch_size)
     assert cfg.dataset.local is not None, "No local dataset provided"
     dataset = load_from_disk(cfg.dataset.local)
+    dataset = dataset.train_test_split(test_size=0.1)
     dataset = dataset[cfg.dataset.split]
 
     dataset = dataset.remove_columns(["species_name", "__index_level_0__"])
@@ -34,6 +36,9 @@ def build_dna_dataloader(
         mlm_probability=mlm_probability,
         span_length=6)
     print("==Using the correct data collator")
+    
+
+    sampler = dist.get_sampler(dataset, shuffle=cfg.dataset.shuffle, drop_last=cfg.drop_last)
 
     eos_token_id = cfg.dataset.get('eos_token_id')
     bos_token_id = cfg.dataset.get('bos_token_id')
@@ -55,6 +60,7 @@ def build_dna_dataloader(
         prefetch_factor=cfg.get('prefetch_factor', 2),
         persistent_workers=cfg.get('persistent_workers', True),
         timeout=cfg.get('timeout', 0),
+        sampler=sampler
     )
 
 def test_set(batch_size) : 

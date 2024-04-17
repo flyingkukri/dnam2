@@ -4,10 +4,10 @@ data_remote:
 
 max_seq_len: 512
 tokenizer_name: gagneurlab/SpeciesLM
-mlm_probability: 0.02
+mlm_probability: 0.025
 
 # Run Name
-run_name: monarch-mixer-pretrain-786dim-80m-parameters
+run_name: wd_correctmasking_monarch-mixer-pretrain-786dim-80m-parameters
 
 # Model
 model:
@@ -48,7 +48,7 @@ train_loader:
     max_seq_len: ${max_seq_len}
     shuffle: true
     mlm_probability: ${mlm_probability}
-  drop_last: true
+  drop_last: false
   num_workers: 8
 
 eval_loader:
@@ -60,7 +60,7 @@ eval_loader:
     tokenizer_name: ${tokenizer_name}
     max_seq_len: ${max_seq_len}
     shuffle: false
-    mlm_probability: 0.02 
+    mlm_probability: 0.025
   drop_last: false
   num_workers: 8
 

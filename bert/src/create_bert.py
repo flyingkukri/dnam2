@@ -88,6 +88,7 @@ def create_bert_mlm(pretrained_model_name: str = 'bert-base-uncased',
         config.update({f'{key}': value})
 
     # Padding for divisibility by 8
+    config.vocab_size = 5504
     if config.vocab_size % 8 != 0:
         config.vocab_size += 8 - (config.vocab_size % 8)
 
@@ -110,8 +111,7 @@ def create_bert_mlm(pretrained_model_name: str = 'bert-base-uncased',
             pretrained_model_name)
 
     metrics = [
-        LanguageCrossEntropy(ignore_index=-100,
-                             vocab_size=model.config.vocab_size),
+        LanguageCrossEntropy(ignore_index=-100),
         MaskedAccuracy(ignore_index=-100)
     ]
 

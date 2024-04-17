@@ -4,17 +4,20 @@
 import os
 import sys
 from typing import Optional, cast
+import subprocess
+
 
 # Add folder root to path to allow us to use relative imports regardless of what directory the script is run from
 sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 
 import src.hf_bert as hf_bert_module
 import src.create_bert as bert_module
+import src.create_model as model_module
 import src.text_data as text_data_module
 import src.dna_data as dna_data_module
 from src.optim.create_param_groups import create_param_groups
 from composer import Trainer, algorithms
-from composer.callbacks import (HealthChecker, LRMonitor, MemoryMonitor,
+from composer.callbacks import (LRMonitor, MemoryMonitor,
                                 OptimizerMonitor, RuntimeEstimator,
                                 SpeedMonitor)
 from composer.loggers import WandBLogger
@@ -173,6 +176,7 @@ def build_model(cfg: DictConfig):
 def main(cfg: DictConfig,
          return_trainer: bool = False,
          do_train: bool = True) -> Optional[Trainer]:
+    
     print('Training using config: ')
     print(om.to_yaml(cfg))
     reproducibility.seed_all(cfg.seed)
@@ -260,7 +264,7 @@ def main(cfg: DictConfig,
         load_path=cfg.get('load_path', None),
         load_weights_only=cfg.get('load_weights_only', False),
         python_log_level=cfg.get('python_log_level', None),
-        autoresume=False,
+        autoresume=True,
     )
 
     print('Logging config...')
