@@ -72,6 +72,11 @@ class BertEmbeddings(nn.Module):
         self.token_type_embeddings = nn.Embedding(config.type_vocab_size,
                                                   config.hidden_size)
 
+        if config.use_species_embeddings:
+            self.species_embeddings = nn.Embedding(config.max_num_species,
+                                                  config.hidden_size)
+        self.use_species_embeddings = config.use_species_embeddings
+
         # self.LayerNorm is not snake-cased to stick with TensorFlow model
         # variable name and be able to load any TensorFlow checkpoint file
         self.LayerNorm = nn.LayerNorm(config.hidden_size,
@@ -90,6 +95,7 @@ class BertEmbeddings(nn.Module):
         token_type_ids: Optional[torch.LongTensor] = None,
         position_ids: Optional[torch.LongTensor] = None,
         inputs_embeds: Optional[torch.FloatTensor] = None,
+        species_id: Optional[torch.LongTensor] = None,
         past_key_values_length: int = 0,
         return_position_encodings: bool = False,
     ) -> torch.Tensor:
@@ -107,6 +113,9 @@ class BertEmbeddings(nn.Module):
             if self.use_positional_encodings:
                 position_ids = self.position_ids[:, past_key_values_length : seq_length + past_key_values_length]
 
+        if species_id is None:
+            if self.use_species_embeddings:
+                raise ValueError('Must specify species_id!')
         # Setting the token_type_ids to the registered buffer in constructor
         # where it is all zeros, which usually occurs when it's auto-generated;
         # registered buffer helps users when tracing the model without passing
@@ -131,6 +140,10 @@ class BertEmbeddings(nn.Module):
         if self.use_positional_encodings:
             position_embeddings = self.position_embeddings(position_ids)
             embeddings += position_embeddings
+        
+        if self.use_species_embeddings:
+            species_embeddings = self.species_embeddings(species_id)
+            embeddings += species_embeddings
         embeddings = self.LayerNorm(embeddings)
         embeddings = self.dropout(embeddings)
         if return_position_encodings:
@@ -771,6 +784,7 @@ class BertModel(BertPreTrainedModel):
         token_type_ids: Optional[torch.Tensor] = None,
         attention_mask: Optional[torch.Tensor] = None,
         position_ids: Optional[torch.Tensor] = None,
+        species_id: Optional[torch.Tensor] = None,
         output_all_encoded_layers: Optional[bool] = False,
         masked_tokens_mask: Optional[torch.Tensor] = None,
         **kwargs
@@ -783,7 +797,8 @@ class BertModel(BertPreTrainedModel):
         embedding_output = self.embeddings(
             input_ids, 
             token_type_ids,
-            position_ids
+            position_ids,
+            species_id
         )
         position_encodings = None
 
@@ -937,6 +952,7 @@ class BertForMaskedLM(BertPreTrainedModel):
         attention_mask: Optional[torch.Tensor] = None,
         token_type_ids: Optional[torch.Tensor] = None,
         position_ids: Optional[torch.Tensor] = None,
+        species_id: Optional[torch.Tensor] = None,
         head_mask: Optional[torch.Tensor] = None,
         inputs_embeds: Optional[torch.Tensor] = None,
         encoder_hidden_states: Optional[torch.Tensor] = None,
@@ -972,6 +988,7 @@ class BertForMaskedLM(BertPreTrainedModel):
             attention_mask=attention_mask,
             token_type_ids=token_type_ids,
             position_ids=position_ids,
+            species_id=species_id,
             head_mask=head_mask,
             inputs_embeds=inputs_embeds,
             encoder_hidden_states=encoder_hidden_states,

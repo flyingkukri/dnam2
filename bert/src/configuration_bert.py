@@ -17,6 +17,10 @@ class BertConfig(BertConfig):
         use_positional_encodings: bool = False,
         max_position_embeddings: int = 512,
 
+        # species embeddings
+        use_species_embeddings: bool = False,
+        max_num_species: int = 512,
+
         # architecture selection
         monarch_mixer_sequence_mixing: bool = False,
         residual_long_conv: bool = False,
@@ -58,6 +62,10 @@ class BertConfig(BertConfig):
         # positional encodings
         self.use_positional_encodings = use_positional_encodings
         self.max_position_embeddings = max_position_embeddings
+
+        # species embeddings
+        self.use_species_embeddings = use_species_embeddings
+        self.max_num_species = max_num_species
 
         # architecture
         self.monarch_mixer_sequence_mixing = monarch_mixer_sequence_mixing
