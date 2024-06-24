@@ -795,10 +795,10 @@ class BertModel(BertPreTrainedModel):
             token_type_ids = torch.zeros_like(input_ids)
 
         embedding_output = self.embeddings(
-            input_ids, 
-            token_type_ids,
-            position_ids,
-            species_id
+            input_ids=input_ids, 
+            token_type_ids=token_type_ids,
+            position_ids=position_ids,
+            species_id=species_id
         )
         position_encodings = None
 

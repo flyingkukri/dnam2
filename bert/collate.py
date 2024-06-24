@@ -16,7 +16,6 @@ def _torch_collate_batch(examples, tokenizer, pad_to_multiple_of = None):
 
     length_of_first = examples[0].size(0)
 
-    # Check if padding is necessary.
 
     are_tensors_same_length = all(x.size(0) == length_of_first for x in examples)
     if are_tensors_same_length and (pad_to_multiple_of is None or length_of_first % pad_to_multiple_of == 0):
@@ -59,6 +58,7 @@ class DataCollatorForLanguageModelingSpan():
                 "input_ids": _torch_collate_batch(examples, self.tokenizer, pad_to_multiple_of=self.pad_to_multiple_of)
             }
 
+        batch["species"].nn.functional.pad(batch["input_ids"], (0, self.span_length), value = self.tokenizer.pad_token_id)
         # If special token mask has been preprocessed, pop it from the dict.
         special_tokens_mask = batch.pop("special_tokens_mask", None)
         if self.mlm:
@@ -136,3 +136,22 @@ class DataCollatorForLanguageModelingSpan():
         labels[special_tokens_mask] = -100
         
         return inputs, labels
+
+#
+# For debugging the species embedding code
+
+if __name__ == "__main__":
+    from datasets import load_from_disk
+    from collate import DataCollatorForLanguageModelingSpan
+    from torch.utils.data import DataLoader
+    from transformers import AutoTokenizer
+
+    dataset = load_from_disk("bert/batch_species")
+    dataset = dataset.remove_columns(["species_name", "__index_level_0__"])
+
+    tokenizer = AutoTokenizer.from_pretrained("gagneurlab/SpeciesLM", revision="downstream_species_lm")
+    data_collator = DataCollatorForLanguageModelingSpan(tokenizer, mlm=True, mlm_probability = 0.02, span_length = 6)
+
+    dataloader = DataLoader(dataset["train"], batch_size=1, collate_fn=data_collator)
+
+    sample = next(iter(dataloader))
