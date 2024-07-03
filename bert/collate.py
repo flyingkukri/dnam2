@@ -58,7 +58,8 @@ class DataCollatorForLanguageModelingSpan():
                 "input_ids": _torch_collate_batch(examples, self.tokenizer, pad_to_multiple_of=self.pad_to_multiple_of)
             }
 
-        batch["species"].nn.functional.pad(batch["input_ids"], (0, self.span_length), value = self.tokenizer.pad_token_id)
+        pad_length = batch["input_ids"].shape[1] - batch["species_id"].shape[1]
+        batch["species_id"] = torch.nn.functional.pad(batch["species_id"], (0, pad_length), value = self.tokenizer.pad_token_id)
         # If special token mask has been preprocessed, pop it from the dict.
         special_tokens_mask = batch.pop("special_tokens_mask", None)
         if self.mlm:
@@ -155,3 +156,6 @@ if __name__ == "__main__":
     dataloader = DataLoader(dataset["train"], batch_size=1, collate_fn=data_collator)
 
     sample = next(iter(dataloader))
+    
+    print(sample['input_ids'].shape)
+    print(sample['species_id'].shape)
