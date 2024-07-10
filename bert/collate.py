@@ -57,7 +57,7 @@ class DataCollatorForLanguageModelingSpan():
             batch = {
                 "input_ids": _torch_collate_batch(examples, self.tokenizer, pad_to_multiple_of=self.pad_to_multiple_of)
             }
-
+        batch["species_id"] = batch["species_id"].reshape(-1, 1)
         batch["species_id"] = batch["species_id"].expand(batch["input_ids"].shape)
 #        pad_length = batch["input_ids"].shape[1] - batch["species_id"].shape[1]
         # If special token mask has been preprocessed, pop it from the dict.
@@ -153,9 +153,9 @@ if __name__ == "__main__":
     tokenizer = AutoTokenizer.from_pretrained("gagneurlab/SpeciesLM", revision="downstream_species_lm")
     data_collator = DataCollatorForLanguageModelingSpan(tokenizer, mlm=True, mlm_probability = 0.02, span_length = 6)
 
-    dataloader = DataLoader(dataset, batch_size=1, collate_fn=data_collator)
+    dataloader = DataLoader(dataset, batch_size=16, collate_fn=data_collator)
 
     sample = next(iter(dataloader))
     
-    print(sample['input_ids'])
-    print(sample['species_id'])
+    print(sample['input_ids'][-1])
+    print(sample['species_id'][-1])
