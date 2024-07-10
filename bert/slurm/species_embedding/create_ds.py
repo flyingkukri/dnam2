@@ -4,11 +4,10 @@ from datasets import load_from_disk, Dataset
 from transformers import AutoTokenizer
 import pandas as pd
 
-#dataset_path = "/s/project/semi_supervised_multispecies/all_fungi_reference/fungi/Annotation/Sequences/AAA_Concatenated/pretokenized/speciesdownstream300"
-dataset_path = "../../batch"
+dataset_path = "/s/project/semi_supervised_multispecies/all_fungi_reference/fungi/Annotation/Sequences/AAA_Concatenated/pretokenized/speciesdownstream300"
+#dataset_path = "../../batch"
 print('started loading dataset')
 dataset = load_from_disk(dataset_path)
-dataset = dataset["train"]
 
 #dataset = dataset[:10]
 
@@ -36,5 +35,5 @@ print('subtracted_starting species id')
 updated_dataset = updated_dataset.add_column("species_ids", species_ids)
 print('added new species embedding column to the dataset')
 
-dataset.save_to_disk("../../batch_embed")
+updated_dataset.save_to_disk("../../full_embed")
 print("saved to disk")
