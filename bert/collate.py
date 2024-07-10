@@ -58,7 +58,9 @@ class DataCollatorForLanguageModelingSpan():
                 "input_ids": _torch_collate_batch(examples, self.tokenizer, pad_to_multiple_of=self.pad_to_multiple_of)
             }
         batch["species_id"] = batch["species_id"].reshape(-1, 1)
-        batch["species_id"] = batch["species_id"].expand(batch["input_ids"].shape)
+        
+        #we have to clone after expand, because otherwise some in-place operations don't work
+        batch["species_id"] = batch["species_id"].expand(batch["input_ids"].shape).clone()
 #        pad_length = batch["input_ids"].shape[1] - batch["species_id"].shape[1]
         # If special token mask has been preprocessed, pop it from the dict.
         special_tokens_mask = batch.pop("special_tokens_mask", None)
