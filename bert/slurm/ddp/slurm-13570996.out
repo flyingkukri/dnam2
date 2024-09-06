@@ -1,3 +1,0 @@
-srun: Job step aborted: Waiting up to 32 seconds for job step to finish.
-slurmstepd: error: *** JOB 13570996 ON ouga14 CANCELLED AT 2024-03-06T14:47:50 ***
-slurmstepd: error: *** STEP 13570996.0 ON ouga14 CANCELLED AT 2024-03-06T14:47:50 ***
