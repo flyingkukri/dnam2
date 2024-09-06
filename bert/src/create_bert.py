@@ -88,6 +88,7 @@ def create_bert_mlm(pretrained_model_name: str = 'bert-base-uncased',
         config.update({f'{key}': value})
 
     # Padding for divisibility by 8
+    config.vocab_size = 5504
     if config.vocab_size % 8 != 0:
         config.vocab_size += 8 - (config.vocab_size % 8)
 
@@ -101,15 +102,16 @@ def create_bert_mlm(pretrained_model_name: str = 'bert-base-uncased',
         model.gradient_checkpointing_enable()  # type: ignore
 
     # setup the tokenizer
-    if tokenizer_name:
+    if tokenizer_name == "gagneurlab/SpeciesLM":
+        tokenizer = transformers.AutoTokenizer.from_pretrained("gagneurlab/SpeciesLM", revision="downstream_species_lm")
+    elif tokenizer_name:
         tokenizer = transformers.AutoTokenizer.from_pretrained(tokenizer_name)
     else:
         tokenizer = transformers.AutoTokenizer.from_pretrained(
             pretrained_model_name)
 
     metrics = [
-        LanguageCrossEntropy(ignore_index=-100,
-                             vocab_size=model.config.vocab_size),
+        LanguageCrossEntropy(ignore_index=-100),
         MaskedAccuracy(ignore_index=-100)
     ]
 

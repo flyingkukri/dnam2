@@ -161,3 +161,10 @@ cython_debug/
 
 **/**.DS_Store
 **.DS_Store
+
+**/300/
+**/300nonsplit
+
+# (slurm) output
+**.out
+**/**.out

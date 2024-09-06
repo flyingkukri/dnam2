@@ -435,6 +435,8 @@ def generate_samples(
         for idx in range(current_bs):
             if truncate_num_samples is not None and n_samples == truncate_num_samples:
                 return
+            #if n_samples == 1024:
+            #    return
             n_samples += 1
             yield {k: v[idx] for k, v in batch.items()}
 
@@ -519,6 +521,7 @@ def main(args: Namespace) -> None:
             else:
                 for sample in tqdm(samples, desc=folder_split):
                     out.write(sample)
+ 
 
 if __name__ == '__main__':
     main(parse_args())

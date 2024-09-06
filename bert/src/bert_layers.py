@@ -72,6 +72,11 @@ class BertEmbeddings(nn.Module):
         self.token_type_embeddings = nn.Embedding(config.type_vocab_size,
                                                   config.hidden_size)
 
+        if config.use_species_embeddings:
+            self.species_embeddings = nn.Embedding(config.max_num_species,
+                                                  config.hidden_size)
+        self.use_species_embeddings = config.use_species_embeddings
+
         # self.LayerNorm is not snake-cased to stick with TensorFlow model
         # variable name and be able to load any TensorFlow checkpoint file
         self.LayerNorm = nn.LayerNorm(config.hidden_size,
@@ -90,6 +95,7 @@ class BertEmbeddings(nn.Module):
         token_type_ids: Optional[torch.LongTensor] = None,
         position_ids: Optional[torch.LongTensor] = None,
         inputs_embeds: Optional[torch.FloatTensor] = None,
+        species_id: Optional[torch.LongTensor] = None,
         past_key_values_length: int = 0,
         return_position_encodings: bool = False,
     ) -> torch.Tensor:
@@ -107,6 +113,9 @@ class BertEmbeddings(nn.Module):
             if self.use_positional_encodings:
                 position_ids = self.position_ids[:, past_key_values_length : seq_length + past_key_values_length]
 
+        if species_id is None:
+            if self.use_species_embeddings:
+                raise ValueError('Must specify species_id!')
         # Setting the token_type_ids to the registered buffer in constructor
         # where it is all zeros, which usually occurs when it's auto-generated;
         # registered buffer helps users when tracing the model without passing
@@ -131,6 +140,10 @@ class BertEmbeddings(nn.Module):
         if self.use_positional_encodings:
             position_embeddings = self.position_embeddings(position_ids)
             embeddings += position_embeddings
+        
+        if self.use_species_embeddings:
+            species_embeddings = self.species_embeddings(species_id)
+            embeddings += species_embeddings
         embeddings = self.LayerNorm(embeddings)
         embeddings = self.dropout(embeddings)
         if return_position_encodings:
@@ -771,6 +784,7 @@ class BertModel(BertPreTrainedModel):
         token_type_ids: Optional[torch.Tensor] = None,
         attention_mask: Optional[torch.Tensor] = None,
         position_ids: Optional[torch.Tensor] = None,
+        species_id: Optional[torch.Tensor] = None,
         output_all_encoded_layers: Optional[bool] = False,
         masked_tokens_mask: Optional[torch.Tensor] = None,
         **kwargs
@@ -781,9 +795,10 @@ class BertModel(BertPreTrainedModel):
             token_type_ids = torch.zeros_like(input_ids)
 
         embedding_output = self.embeddings(
-            input_ids, 
-            token_type_ids,
-            position_ids
+            input_ids=input_ids, 
+            token_type_ids=token_type_ids,
+            position_ids=position_ids,
+            species_id=species_id
         )
         position_encodings = None
 
@@ -809,10 +824,11 @@ class BertModel(BertPreTrainedModel):
                 sequence_output, mask = attention_mask) if self.pooler is not None else None
         else:
             # TD [2022-03-01]: the indexing here is very tricky.
-            attention_mask_bool = attention_mask.bool()
-            subset_idx = subset_mask[attention_mask_bool]  # type: ignore
-            sequence_output = encoder_outputs[-1][
-                masked_tokens_mask[attention_mask_bool][subset_idx]]
+            if not output_all_encoded_layers:
+                attention_mask_bool = attention_mask.bool()
+                subset_idx = subset_mask[attention_mask_bool]  # type: ignore
+                map = masked_tokens_mask[attention_mask_bool][subset_idx]
+                sequence_output = encoder_outputs[-1][map]
             if self.pooler is not None:
                 pool_input = encoder_outputs[-1][
                     first_col_mask[attention_mask_bool][subset_idx]]
@@ -936,6 +952,7 @@ class BertForMaskedLM(BertPreTrainedModel):
         attention_mask: Optional[torch.Tensor] = None,
         token_type_ids: Optional[torch.Tensor] = None,
         position_ids: Optional[torch.Tensor] = None,
+        species_id: Optional[torch.Tensor] = None,
         head_mask: Optional[torch.Tensor] = None,
         inputs_embeds: Optional[torch.Tensor] = None,
         encoder_hidden_states: Optional[torch.Tensor] = None,
@@ -944,6 +961,7 @@ class BertForMaskedLM(BertPreTrainedModel):
         output_attentions: Optional[bool] = None,
         output_hidden_states: Optional[bool] = None,
         return_dict: Optional[bool] = None,
+        output_all_encoded_layers: Optional[bool] = None,
     ) -> Union[Tuple[torch.Tensor], MaskedLMOutput]:
         # labels should be a `torch.LongTensor` of shape
         # `(batch_size, sequence_length)`. These are used for computing the
@@ -970,6 +988,7 @@ class BertForMaskedLM(BertPreTrainedModel):
             attention_mask=attention_mask,
             token_type_ids=token_type_ids,
             position_ids=position_ids,
+            species_id=species_id,
             head_mask=head_mask,
             inputs_embeds=inputs_embeds,
             encoder_hidden_states=encoder_hidden_states,
@@ -978,13 +997,20 @@ class BertForMaskedLM(BertPreTrainedModel):
             output_hidden_states=output_hidden_states,
             return_dict=return_dict,
             masked_tokens_mask=masked_tokens_mask,
+            output_all_encoded_layers=output_all_encoded_layers
         )
 
-        sequence_output = outputs[0]
-        prediction_scores = self.cls(sequence_output)
+        if output_all_encoded_layers:
+            prediction_scores = None
+            hidden_states = outputs[0]
+        else:
+            sequence_output = outputs[0]
+            prediction_scores = self.cls(sequence_output)
+            hidden_states = None
+
 
         loss = None
-        if labels is not None:
+        if labels is not None and not output_all_encoded_layers:
             # Compute loss
             loss_fct = nn.CrossEntropyLoss()
 
@@ -1007,7 +1033,7 @@ class BertForMaskedLM(BertPreTrainedModel):
         return MaskedLMOutput(
             loss=loss,
             logits=prediction_scores,
-            hidden_states=None,
+            hidden_states=hidden_states,
             attentions=None,
         )
 
